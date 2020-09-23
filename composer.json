@@ -1,0 +1,19 @@
+{
+	"autoload": {
+		"classmap": [
+			"src/"
+		],
+		"psr-4": {
+			"src\\": "src/"
+		}
+	},
+	"require": {
+		"php": ">=7.4.7",
+		"monolog/monolog": "1.0.*"
+	}
+	,
+	"require-dev": {
+		"roave/security-advisories": "dev-master",
+		"phpunit/phpunit": "^9.0"
+	}
+}

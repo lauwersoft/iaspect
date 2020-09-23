@@ -1,0 +1,44 @@
+version: "3"
+
+networks:
+  internal:
+    external: false
+
+services:
+
+  mysql:
+    image: mysql:5.7.22
+    container_name: db-php-assignment
+    hostname: db-php-assignment
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: development
+      MYSQL_PASSWORD: development
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
+      - db-php-assignment:/var/lib/mysql
+    expose:
+      - "3306"
+    networks:
+      - internal
+
+  application:
+    image: registry.gitlab.com/shoop/php-assignment:v1.0
+    container_name: app-php-assignment
+    hostname: app-php-assignment
+    volumes:
+      - ./:/var/www/html:delegated
+    ports:
+      - '80:80'
+    networks:
+      - internal
+    depends_on:
+      - mysql
+    environment:
+      - 'DB_PORT=3306'
+
+volumes:
+  db-php-assignment:
+    external: false
