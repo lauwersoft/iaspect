@@ -1,4 +1,5 @@
 <?php
+require 'vendor/autoload.php';
 
 echo "
 ██████  ██   ██ ██████       █████  ███████ ███████ ██  ██████  ███    ██ ███    ███ ███████ ███    ██ ████████ 
@@ -8,3 +9,9 @@ echo "
 ██      ██   ██ ██          ██   ██ ███████ ███████ ██  ██████  ██   ████ ██      ██ ███████ ██   ████    ██    
                                                                                                                                                                                                                              
 ";
+
+use Src\MyExampleObject;
+
+$object = new MyExampleObject('PHP Assignment');
+echo $object->getTitle();
+

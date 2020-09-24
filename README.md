@@ -25,5 +25,6 @@ This is a basic PHP 7.4 / Apache / Mysql docker environment to create your PHP A
 * Run PHPUnit tests : `./vendor/bin/phpunit src/tests/`
 
 ## Connect to Mysql database
-* External (e.g Workbench, Sequel Pro etc) `host:localhost , port:3306  credentials:development / development, database=assignment`
+* External (e.g Workbench, Sequel Pro etc) `host:localhost , port:3306  credentials:development / development, database=assignment`.
 * Internal (from the application / Docker) `host:db-php-assignment , port:3306,  credentials:development / development, database=assignment`
+* Example connection with PDO : `$db = new PDO('mysql:host=db-php-assignment; dbname=assignment', 'development', 'development');`
