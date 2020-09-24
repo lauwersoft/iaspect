@@ -8,17 +8,20 @@ This is a basic PHP 7.4 / Apache / Mysql docker environment to create your PHP A
 * Docker Engine  : https://docs.docker.com/engine/install/ubuntu/
 * Docker-compose : https://docs.docker.com/compose/install/
 
-## How to start enviroment
+## First time installation
 * Clone or download this project 
 * Add `127.0.0.1 php.docker.test` to your host file
+* CD to your project directory (on your harddrive) and run : `docker-compose up -d` 
+* Open a terminal and enter the docker container with : `docker exec -it app-php-assignment bash`
+* Run `composer install`
+* Exit the container with `exit`
+* Open a browser and go to http://php.docker.test/
+ 
+## Starting / Stopping enviroment
 * From your terminal, CD to your project on your harddrive
 * Run : `docker-compose up -d`   
 * In your browser, go to http://php.docker.test/
-
-## First time installation
-* From your terminal enter the docker container with : `docker exec -it app-php-assignment bash`
-* Run `composer install`
-* Exit the container with `exit` 
+* Stop: to stop the Docker environment, run : `docker-compose down`
 
 ## Running PHPUnit tests 
 * Enter the docker container (from your terminal) with : `docker exec -it app-php-assignment bash`
