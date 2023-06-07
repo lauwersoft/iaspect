@@ -4,16 +4,30 @@
 			"src/"
 		],
 		"psr-4": {
-			"Src\\": "src/"
-		}
+			"Core\\": "core/",
+			"App\\": "src/app",
+			"Tests\\": "tests/"
+		},
+		"files": [
+			"core/helpers.php"
+		]
 	},
 	"require": {
 		"php": ">=7.4.7",
-		"monolog/monolog": "1.0.*"
+		"monolog/monolog": "1.0.*",
+      	"ext-pdo": "*",
+		"vlucas/phpdotenv": "^2.5",
+		"ext-json": "*"
 	}
 	,
 	"require-dev": {
 		"roave/security-advisories": "dev-master",
 		"phpunit/phpunit": "^9.0"
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+		],
+		"migrate": "php src/database/migrate.php"
 	}
 }

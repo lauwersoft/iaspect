@@ -1,17 +1,9 @@
 <?php
-require 'vendor/autoload.php';
 
-echo "
-██████  ██   ██ ██████       █████  ███████ ███████ ██  ██████  ███    ██ ███    ███ ███████ ███    ██ ████████ 
-██   ██ ██   ██ ██   ██     ██   ██ ██      ██      ██ ██       ████   ██ ████  ████ ██      ████   ██    ██    
-██████  ███████ ██████      ███████ ███████ ███████ ██ ██   ███ ██ ██  ██ ██ ████ ██ █████   ██ ██  ██    ██    
-██      ██   ██ ██          ██   ██      ██      ██ ██ ██    ██ ██  ██ ██ ██  ██  ██ ██      ██  ██ ██    ██    
-██      ██   ██ ██          ██   ██ ███████ ███████ ██  ██████  ██   ████ ██      ██ ███████ ██   ████    ██    
-                                                                                                                                                                                                                             
-";
+require 'core/bootstrap.php';
 
-use Src\MyExampleObject;
+use Core\Request\Request;
+use Core\Router\Router;
 
-$object = new MyExampleObject('PHP Assignment');
-echo $object->getTitle();
+(new Router())->load('src/app/routes.php')->direct(Request::uri(), Request::method());
 
