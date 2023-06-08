@@ -2,37 +2,41 @@
 
 namespace App\Controllers;
 
-use App\Models\Battery;
-use App\Models\Bicycle;
-use App\Models\Feature;
-use App\Models\Supplier;
-use App\Models\Type;
+use App\Builders\BatteryBuilder;
+use App\Builders\BicycleBuilder;
+use App\Builders\FeatureBuilder;
+use App\Builders\SupplierBuilder;
+use App\Builders\TypeBuilder;
 
 class BicycleController
 {
-    private Bicycle $bicycle;
+    private BicycleBuilder $bicycleBuilder;
+    private SupplierBuilder $supplierBuilder;
+    private BatteryBuilder $batteryBuilder;
+    private TypeBuilder $typeBuilder;
+    private FeatureBuilder $featureBuilder;
 
     public function __construct()
     {
-        $this->bicycle = new Bicycle();
+        $this->bicycleBuilder = new BicycleBuilder();
+        $this->batteryBuilder = new BatteryBuilder();
+        $this->supplierBuilder = new SupplierBuilder();
+        $this->typeBuilder = new TypeBuilder();
+        $this->featureBuilder = new FeatureBuilder();
     }
 
     public function index()
     {
-        $bicycles = $this->bicycle->selectAll();
+        $bicycles = $this->bicycleBuilder->selectAll();
 
         return view('bicycle/index', ['bicycles' => $bicycles]);
     }
 
     public function create()
     {
-        $battery = new Battery();
-        $supplier = new Supplier();
-        $type = new Type();
-
-        $batteries = $battery->selectAll();
-        $suppliers = $supplier->selectAll();
-        $types = $type->selectAll();
+        $batteries = $this->batteryBuilder->selectAll();
+        $suppliers = $this->supplierBuilder->selectAll();
+        $types = $this->typeBuilder->selectAll();
 
         return view('bicycle/create', [
             'batteries' => $batteries,
@@ -43,7 +47,7 @@ class BicycleController
 
     public function store()
     {
-        $id = $this->bicycle->insert([
+        $id = $this->bicycleBuilder->insert([
             'name' => $_POST['name'],
             'price' => $_POST['price'],
             'battery_id' => $_POST['battery_id'],
@@ -56,14 +60,14 @@ class BicycleController
 
     public function edit(int $id)
     {
-        $bicycle = $this->bicycle->where(['id' => $id])->first();
+        $bicycle = $this->bicycleBuilder->where(['id' => $id])->first();
 
         return view('bicycle/edit', ['bicycle' => $bicycle]);
     }
 
     public function update(int $id)
     {
-        $this->bicycle->where(['id' => $id])->update([
+        $this->bicycleBuilder->where(['id' => $id])->update([
             'name' => $_POST['name'],
             'price' => $_POST['price'],
         ]);
@@ -73,18 +77,11 @@ class BicycleController
 
     public function show(int $id)
     {
-        $bicycle = $this->bicycle->where(['id' => $id])->first();
-
-        $batteryQuery = new Battery();
-        $supplierQuery = new Supplier();
-        $typeQuery = new Type();
-        $featureQuery = new Feature();
-
-        $battery = $batteryQuery->where(['id' => $bicycle->battery_id])->first();
-        $supplier = $supplierQuery->where(['id' => $bicycle->supplier_id])->first();
-        $type = $typeQuery->where(['id' => $bicycle->type_id])->first();
-
-        $features = $featureQuery->where(['bicycle_id', $id])->selectAll();
+        $bicycle = $this->bicycleBuilder->where(['id' => $id])->first();
+        $battery = $this->batteryBuilder->where(['id' => $bicycle->battery_id])->first();
+        $supplier = $this->supplierBuilder->where(['id' => $bicycle->supplier_id])->first();
+        $type = $this->typeBuilder->where(['id' => $bicycle->type_id])->first();
+        $features = $this->featureBuilder->where(['bicycle_id', $id])->selectAll();
 
         return view('bicycle/show', [
             'bicycle' => $bicycle,
@@ -97,7 +94,7 @@ class BicycleController
 
     public function delete(int $id)
     {
-        $this->bicycle->where(['id' => $id])->delete();
+        $this->bicycleBuilder->where(['id' => $id])->delete();
 
         redirect("bicycles");
     }

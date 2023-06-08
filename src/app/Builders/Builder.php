@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Builders;
 
 use Core\App;
 use Core\Database\QueryBuilder;
 use Exception;
 
-abstract class Model extends QueryBuilder
+abstract class Builder extends QueryBuilder
 {
     /**
      * @throws Exception

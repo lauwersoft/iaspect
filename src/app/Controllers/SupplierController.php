@@ -2,20 +2,20 @@
 
 namespace App\Controllers;
 
-use App\Models\Supplier;
+use App\Builders\SupplierBuilder;
 
 class SupplierController
 {
-    private Supplier $supplier;
+    private SupplierBuilder $supplierBuilder;
 
     public function __construct()
     {
-        $this->supplier = new Supplier();
+        $this->supplierBuilder = new SupplierBuilder();
     }
 
     public function index()
     {
-        $suppliers = $this->supplier->selectAll();
+        $suppliers = $this->supplierBuilder->selectAll();
 
         return view('supplier/index', ['suppliers' => $suppliers]);
     }
@@ -27,7 +27,7 @@ class SupplierController
 
     public function store()
     {
-        $id = $this->supplier->insert([
+        $id = $this->supplierBuilder->insert([
             'name' => $_POST['name']
         ]);
 
@@ -36,14 +36,14 @@ class SupplierController
 
     public function edit(int $id)
     {
-        $supplier = $this->supplier->where(['id' => $id])->first();
+        $supplier = $this->supplierBuilder->where(['id' => $id])->first();
 
         return view('supplier/edit', ['supplier' => $supplier]);
     }
 
     public function update(int $id)
     {
-        $this->supplier->where(['id' => $id])->update([
+        $this->supplierBuilder->where(['id' => $id])->update([
             'name' => $_POST['name']
         ]);
 
@@ -52,14 +52,14 @@ class SupplierController
 
     public function show(int $id)
     {
-        $supplier = $this->supplier->where(['id' => $id])->first();
+        $supplier = $this->supplierBuilder->where(['id' => $id])->first();
 
         return view('supplier/show', ['supplier' => $supplier]);
     }
 
     public function delete(int $id)
     {
-        $this->supplier->where(['id' => $id])->delete();
+        $this->supplierBuilder->where(['id' => $id])->delete();
 
         redirect("suppliers");
     }

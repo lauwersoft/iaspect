@@ -2,20 +2,20 @@
 
 namespace App\Controllers;
 
-use App\Models\Battery;
+use App\Builders\BatteryBuilder;
 
 class BatteryController
 {
-    private Battery $battery;
+    private BatteryBuilder $batteryBuilder;
 
     public function __construct()
     {
-        $this->battery = new Battery();
+        $this->batteryBuilder = new BatteryBuilder();
     }
 
     public function index()
     {
-        $batteries = $this->battery->selectAll();
+        $batteries = $this->batteryBuilder->selectAll();
 
         return view('battery/index', ['batteries' => $batteries]);
     }
@@ -27,7 +27,7 @@ class BatteryController
 
     public function store()
     {
-        $id = $this->battery->insert([
+        $id = $this->batteryBuilder->insert([
             'name' => $_POST['name']
         ]);
 
@@ -36,14 +36,14 @@ class BatteryController
 
     public function edit(int $id)
     {
-        $battery = $this->battery->where(['id' => $id])->first();
+        $battery = $this->batteryBuilder->where(['id' => $id])->first();
 
         return view('battery/edit', ['battery' => $battery]);
     }
 
     public function update(int $id)
     {
-        $this->battery->where(['id' => $id])->update([
+        $this->batteryBuilder->where(['id' => $id])->update([
             'name' => $_POST['name']
         ]);
 
@@ -52,14 +52,14 @@ class BatteryController
 
     public function show(int $id)
     {
-        $battery = $this->battery->where(['id' => $id])->first();
+        $battery = $this->batteryBuilder->where(['id' => $id])->first();
 
         return view('battery/show', ['battery' => $battery]);
     }
 
     public function delete(int $id)
     {
-        $this->battery->where(['id' => $id])->delete();
+        $this->batteryBuilder->where(['id' => $id])->delete();
 
         redirect("batteries");
     }
