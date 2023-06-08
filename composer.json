@@ -28,6 +28,7 @@
 		"post-install-cmd": [
 			"@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
 		],
-		"migrate": "php src/database/migrate.php"
+		"migrate": "php src/database/migrate.php",
+		"rollback": "php src/database/rollback.php"
 	}
 }

@@ -2,10 +2,10 @@
 
 namespace App\Controllers;
 
-class PageController
+class HomeController
 {
     public function home()
     {
-        return view('index');
+        return view('home');
     }
 }

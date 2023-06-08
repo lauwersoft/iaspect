@@ -25,6 +25,9 @@ services:
       - internal
 
   application:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
     image: registry.gitlab.com/shoop/php-assignment:v1.0
     container_name: app-php-assignment
     hostname: app-php-assignment

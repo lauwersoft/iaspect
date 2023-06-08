@@ -20,14 +20,21 @@ class Router implements RouterInterface
         return $router;
     }
 
-    public function get(string $uri, string $controller): void
+    public function get(string $uri, array $controllerAction): void
     {
-        $this->routes['GET'][$uri] = $controller;
+        $this->routes['GET'][$this->convertToRegex($uri)] = $controllerAction;
     }
 
-    public function post(string $uri, string $controller): void
+    public function post(string $uri, array $controllerAction): void
     {
-        $this->routes['POST'][$uri] = $controller;
+        $this->routes['POST'][$this->convertToRegex($uri)] = $controllerAction;
+    }
+
+    private function convertToRegex($uri): string
+    {
+        $trimmedUri = ltrim($uri, '/');
+
+        return '/^' . str_replace(['{', '}', '/'], ['(?P<', '>[\w\-]+)', '\/'], $trimmedUri) . '$/i';
     }
 
     /**
@@ -35,29 +42,41 @@ class Router implements RouterInterface
      */
     public function direct($uri, $requestType)
     {
-        if (array_key_exists($uri, $this->routes[$requestType])) {
-            return $this->callAction(
-                ...explode('@', $this->routes[$requestType][$uri])
-            );
+        foreach ($this->routes[$requestType] as $route => $controllerAction) {
+            if (preg_match($route, $uri, $matches)) {
+                return $this->callAction(
+                    $controllerAction,  // No need to explode anything here anymore
+                    $this->processMatches($matches)  // Parameters
+                );
+            }
         }
 
         throw new Exception('No route defined for this URI.');
     }
 
+    private function processMatches(array $matches): array
+    {
+        foreach ($matches as $key => $match) {
+            if (is_int($key)) {
+                unset($matches[$key]);
+            }
+        }
+        return $matches;
+    }
+
     /**
      * @throws Exception
      */
-    protected function callAction(string $controller, string $action)
+    protected function callAction(array $controllerAction, array $params = [])
     {
-        $controller = "App\\Controllers\\{$controller}";
-        $controller = new $controller();
+        $controller = new $controllerAction[0]();
 
-        if (!method_exists($controller, $action)) {
+        if (!method_exists($controller, $controllerAction[1])) {
             throw new Exception(
-                "{$controller} does not respond to the {$action} action."
+                "{$controllerAction[0]} does not respond to the {$controllerAction[1]} action."
             );
         }
 
-        return $controller->$action();
+        return $controller->{$controllerAction[1]}(...array_values($params));
     }
 }

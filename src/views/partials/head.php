@@ -2,11 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PHP Assignment</title>
+    <title>PHP-Assignment</title>
 </head>
 <body>
-
-<h1>Home Page</h1>
-
-</body>
-</html>
+<?php require 'nav.php'; ?>
