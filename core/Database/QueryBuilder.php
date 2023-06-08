@@ -11,11 +11,11 @@ abstract class QueryBuilder
 {
     protected PDO $pdo;
     protected string $tableName;
-    protected string $where;
-    protected string $orderBy;
-    protected string $limit;
+    protected string $where = '';
+    protected string $orderBy = '';
+    protected string $limit = '';
     protected array $whereValues = [];
-    protected array $updateValues = [];
+    protected array $parameters = [];
 
     public function __construct($pdo)
     {
@@ -63,7 +63,7 @@ abstract class QueryBuilder
     {
         $fields = $columns ? implode(', ', $columns) : '*';
         $sql = $this->attachClauses("SELECT $fields FROM {$this->tableName}");
-        $statement = $this->executeStatement($sql);
+        $statement = $this->executeStatement($sql, $this->whereValues);
 
         return $statement->fetchAll(PDO::FETCH_CLASS);
     }
@@ -71,12 +71,7 @@ abstract class QueryBuilder
     public function selectOne(array $columns = []): array
     {
         $this->limit(0, 1);
-        $fields = $columns ? implode(', ', $columns) : '*';
-        $sql = $this->attachClauses("SELECT {$fields} FROM {$this->tableName}");
-        $parameters = $this->whereValues; // include where values
-        $statement = $this->executeStatement($sql, $parameters); // add parameters to function call
-
-        return $statement->fetchAll(PDO::FETCH_CLASS);
+        return $this->select($columns);
     }
 
     public function first(array $columns = []): stdClass
@@ -93,17 +88,12 @@ abstract class QueryBuilder
             ':' . implode(', :', array_keys($parameters))
         );
 
-        try {
-            $parameters = $this->bindValues($parameters);
-            $this->executeStatement($sql, $parameters);
+        $statement = $this->executeStatement($sql, $parameters);
 
-            return $this->pdo->lastInsertId();
-        } catch (\Exception $exception) {
-            die($exception->getMessage());
-        }
+        return $this->pdo->lastInsertId();
     }
 
-    public function update(array $parameters)
+    public function update(array $parameters): int
     {
         $setClauses = [];
         foreach ($parameters as $field => $value) {
@@ -112,58 +102,40 @@ abstract class QueryBuilder
 
         $sql = $this->attachClauses(sprintf('UPDATE %s SET %s', $this->tableName, implode(', ', $setClauses)));
 
-        try {
-            return $this->executeStatement($sql, $parameters, true);
-        } catch (Exception $exception) {
-            die($exception->getMessage());
-        }
+        $updateParams = $this->prepareUpdateParameters($parameters);
+        $statement = $this->executeStatement($sql, $updateParams);
+
+        return $statement->rowCount();
     }
 
-    public function delete()
+    public function delete(): int
     {
         $sql = $this->attachClauses("DELETE FROM {$this->tableName}");
 
+        $statement = $this->executeStatement($sql, $this->whereValues);
+
+        return $statement->rowCount();
+    }
+
+    protected function executeStatement(string $sql, array $parameters = [])
+    {
         try {
-            $parameters = $this->bindValues($this->whereValues, true);
-            return $this->executeStatement($sql, $parameters);
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute($parameters);
+            return $statement;
         } catch (Exception $exception) {
             die($exception->getMessage());
         }
     }
 
-    protected function executeStatement(string $sql, array $parameters = [], bool $isUpdateOrDelete = false)
+    protected function prepareUpdateParameters(array $parameters): array
     {
-        $statement = $this->pdo->prepare($sql);
-
-        if($isUpdateOrDelete){
-            $updateParams = array_combine(array_map(function($key) { return "update_".$key; }, array_keys($parameters)), $parameters);
-            $parameters = array_merge($this->whereValues, $updateParams);
-        }
-
-        $statement->execute($parameters);
-
-        return $statement;
-    }
-
-    protected function bindValues(array $parameters, $isUpdate = false)
-    {
-        $preparedParameters = [];
-        if($isUpdate) {
-            $preparedParameters = array_merge($this->whereValues, array_combine(array_map(function($key) { return "update_".$key; }, array_keys($this->updateValues)), $this->updateValues));
-        } else {
-            foreach ($parameters as $key => $value) {
-                $preparedParameters[':'.$key] = $value;
-            }
-        }
-        return $preparedParameters;
+        $updateParams = array_combine(array_map(function($key) { return "update_".$key; }, array_keys($parameters)), $parameters);
+        return array_merge($this->whereValues, $updateParams);
     }
 
     protected function attachClauses(string $sql): string
     {
-        $sql .= $this->where ?? '';
-        $sql .= $this->orderBy ?? '';
-        $sql .= $this->limit ?? '';
-
-        return $sql;
+        return $sql . $this->where . $this->orderBy . $this->limit;
     }
 }
